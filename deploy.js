@@ -33,21 +33,12 @@ const addRemote = (app_name) => {
   console.log("Added git remote heroku");
 };
 
-const cloneRepo = (repo_name, current_commit) => {
-  //   execSync("cat deploy.js", { stdio: "inherit" });
-  //   const repoUrl = `https://github.com/${repo_name}.git`;
-  //   execSync(`git clone ${repoUrl} --depth=1 --branch=${current_commit}`);
-  //   console.log("Repo cloned");
-};
-
 let env = {
   heroku_api_secret: getEnv("HEROKU_API_SECRET"),
   heroku_app_name: getEnv("HEROKU_APP_NAME"),
   heroku_email: getEnv("HEROKU_EMAIL"),
   app_environment: getEnv("APP_ENVIRONMENT"),
   reset_netrc: getEnv("RESET_NETRC") === "true",
-  repo_name: getEnv("GITHUB_REPOSITORY"),
-  current_commit: getEnv("GITHUB_SHA"),
 };
 
 (async () => {
@@ -67,10 +58,8 @@ let env = {
   // If the Repo clone is shallow, make it unshallow
   if (isShallow === "true\n") {
     execSync("git fetch --prune --unshallow");
-    console.log("Unshallowed repo clone");
   }
 
-  console.log(env);
   execSync(
     createCatFile(env.heroku_email, env.heroku_api_secret, env.reset_netrc)
   );
@@ -80,7 +69,6 @@ let env = {
   execSync("heroku container:login");
   console.log("Successfully logged into heroku");
 
-  cloneRepo(env.repo_name, env.current_commit);
   addRemote(env.heroku_app_name);
 
   execSync(
