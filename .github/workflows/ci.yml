@@ -18,7 +18,6 @@ env:
   CARGO_TERM_COLOR: always
   SQLX_VERSION: 0.6.2
   SQLX_FEATURES: "rustls,postgres"
-  HEROKU_API_SECRET: ${{secrets.HEROKU_API_KEY}}
 
 # A workflow run is made up of one or more jobs, which run in parallel by default
 # Each job runs in a runner environment specified by runs-on
@@ -168,6 +167,7 @@ jobs:
     # needs: [test, fmt, clippy, coverage]
     runs-on: ubuntu-latest
     env:
+      HEROKU_API_SECRET: ${{secrets.HEROKU_API_KEY}}
       HEROKU_APP_NAME: zero2prod
       HEROKU_EMAIL: bendamyth@gmail.com
       APP_ENVIRONMENT: production
