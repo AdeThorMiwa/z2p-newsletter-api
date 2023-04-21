@@ -167,7 +167,7 @@ jobs:
     # needs: [test, fmt, clippy, coverage]
     runs-on: ubuntu-latest
     env:
-      HEROKU_API_SECRET: ${{secrets.HEROKU_API_SECRET}}
+      HEROKU_API_SECRET: ${{secrets.HEROKU_API_KEY}}
       HEROKU_APP_NAME: zero2prod
       HEROKU_EMAIL: bendamyth@gmail.com
       APP_ENVIRONMENT: production
