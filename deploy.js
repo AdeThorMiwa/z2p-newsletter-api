@@ -60,6 +60,16 @@ let env = {
     );
   }
 
+  const isShallow = execSync(
+    "git rev-parse --is-shallow-repository"
+  ).toString();
+
+  // If the Repo clone is shallow, make it unshallow
+  if (isShallow === "true\n") {
+    execSync("git fetch --prune --unshallow");
+    console.log("Unshallowed repo clone");
+  }
+
   console.log(env);
   execSync(
     createCatFile(env.heroku_email, env.heroku_api_secret, env.reset_netrc)
@@ -78,14 +88,6 @@ let env = {
   );
 
   try {
-    let remote_branch = execSync(
-      "git remote show heroku | grep 'HEAD' | cut -d':' -f2 | sed -e 's/^ *//g' -e 's/ *$//g'"
-    )
-      .toString()
-      .trim();
-
-    console.log("remote branch is: ", remote_branch);
-
     execSync(`git push heroku main:refs/heads/main --force`, {
       stdio: ["pipe", process.stdout, process.stderr],
     });
