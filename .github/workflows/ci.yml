@@ -166,27 +166,19 @@ jobs:
   deploy:
     # needs: [test, fmt, clippy, coverage]
     runs-on: ubuntu-latest
+    env:
+      HEROKU_API_SECRET: ${{secrets.HEROKU_API_SECRET}}
+      HEROKU_APP_NAME: zero2prod
+      HEROKU_EMAIL: bendamyth@gmail.com
+      APP_ENVIRONMENT: production
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Heroku CLI
-        uses: heroku/actions-cli@v7
-
-      - name: Login to Heroku with API key
-        uses: heroku/actions-cli@v7
-        with:
-          args: auth:token ${{ env.HEROKU_API_KEY }}
+      - name: Deploy
+        run: node deploy.js
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "bendamyth@gmail.com"
-          git config --global user.name "AdeThorMiwa"
-
-      - name: Deploy to Heroku
-        uses: heroku/actions-cli@v7
-        with:
-          args: git:remote -a zero2prod
-      - run: git push heroku main
+          HEROKU_API_SECRET: ${{ env.HEROKU_API_SECRET }}
+          HEROKU_APP_NAME: ${{ env.HEROKU_APP_NAME }}
+          HEROKU_EMAIL: ${{ env.HEROKU_EMAIL }}
+          APP_ENVIRONMENT: ${{ env.APP_ENVIRONMENT }}
