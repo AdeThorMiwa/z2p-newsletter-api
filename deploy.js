@@ -34,7 +34,7 @@ const addRemote = (app_name) => {
 };
 
 const cloneRepo = (repo_name, current_commit) => {
-  execSync("cat deploy.js", { stdio: "inherit" });
+  //   execSync("cat deploy.js", { stdio: "inherit" });
   //   const repoUrl = `https://github.com/${repo_name}.git`;
   //   execSync(`git clone ${repoUrl} --depth=1 --branch=${current_commit}`);
   //   console.log("Repo cloned");
@@ -78,7 +78,15 @@ let env = {
   );
 
   try {
-    execSync("git push --force heroku HEAD:main", {
+    let remote_branch = execSync(
+      "git remote show heroku | grep 'HEAD' | cut -d':' -f2 | sed -e 's/^ *//g' -e 's/ *$//g'"
+    )
+      .toString()
+      .trim();
+
+    console.log("remote branch is: ", remote_branch);
+
+    execSync(`git push heroku main:refs/heads/main --force`, {
       stdio: ["pipe", process.stdout, process.stderr],
     });
     process.exit(0);
