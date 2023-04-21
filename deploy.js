@@ -67,7 +67,7 @@ let env = {
   );
 
   try {
-    execSync("git push heroku main", {
+    execSync("git push heroku main --force", {
       stdio: ["pipe", process.stdout, process.stderr],
     });
     process.exit(0);
