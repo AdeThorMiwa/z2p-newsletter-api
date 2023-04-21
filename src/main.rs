@@ -20,7 +20,8 @@ async fn main() -> Result<(), std::io::Error> {
         .connect_lazy(config.database.connection_string().expose_secret())
         .expect("Failed to connect to Postgres");
 
-    let url = format!("{}:{}", config.application.host, config.application.port);
+    let port = std::env::var("PORT").unwrap_or(format!("{}", config.application.port));
+    let url = format!("{}:{}", config.application.host, port);
     let listener = TcpListener::bind(url)?;
     run(listener, pool)?.await
 }
