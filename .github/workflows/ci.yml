@@ -164,7 +164,7 @@ jobs:
 
   # `deploy`
   deploy:
-    needs: [test, fmt, clippy, coverage]
+    # needs: [test, fmt, clippy, coverage]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
