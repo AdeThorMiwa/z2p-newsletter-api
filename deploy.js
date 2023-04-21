@@ -2,7 +2,7 @@ const { execSync } = require("child_process");
 const os = require("os");
 
 const setOutput = (name, value) => {
-  process.stdout.write(name + " " + value + " " + os.EOL);
+  process.stdout.write(os.EOL);
 };
 
 const setFailed = (message) => {
