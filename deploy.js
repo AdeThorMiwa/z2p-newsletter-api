@@ -67,12 +67,11 @@ let env = {
   );
 
   try {
-    console.log("Push to heroku");
-    execSync("git push heroku main");
-    console.log("Successfully deployed heroku app from branch main");
+    execSync("git push heroku main", {
+      stdio: ["pipe", process.stdout, process.stderr],
+    });
     process.exit(0);
   } catch (e) {
-    console.log("errored");
     console.error("Error while pushing: ", e);
     process.exit(1);
   }
