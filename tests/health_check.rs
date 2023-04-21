@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use reqwest;
+
 use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
@@ -31,16 +31,15 @@ pub struct AppBootstrap {
 impl AppBootstrap {
     async fn configure_db(config: &DatabaseSettings) -> PgPool {
         // create db
-        let mut conn =
-            PgConnection::connect(&config.connection_string_without_db().expose_secret())
-                .await
-                .expect("Failed to connect to Postgres");
+        let mut conn = PgConnection::connect(config.connection_string_without_db().expose_secret())
+            .await
+            .expect("Failed to connect to Postgres");
 
         conn.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
             .await
             .expect("Failed to create db");
 
-        let conn_pool = PgPool::connect(&config.connection_string().expose_secret())
+        let conn_pool = PgPool::connect(config.connection_string().expose_secret())
             .await
             .expect("Failed to connect to Postgres.");
 
