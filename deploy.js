@@ -67,7 +67,10 @@ let env = {
   );
 
   try {
-    execSync("git push heroku main --force", {
+    execSync("git fetch --all --unshallow");
+    console.log("Full history fetched");
+
+    execSync("git push --force heroku main", {
       stdio: ["pipe", process.stdout, process.stderr],
     });
     process.exit(0);
