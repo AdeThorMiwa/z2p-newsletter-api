@@ -55,7 +55,7 @@ let env = {
     );
   }
 
-  //
+  console.log(env);
   execSync(createCatFile(env.heroku_email, env.heroku_api_secret));
   console.log("Created and wrote to ~/.netrc");
 
