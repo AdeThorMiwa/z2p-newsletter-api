@@ -33,12 +33,20 @@ const addRemote = (app_name) => {
   console.log("Added git remote heroku");
 };
 
+const cloneRepo = (repo_name, current_commit) => {
+  const repoUrl = `https://github.com/${repo_name}.git`;
+  execSync(`git clone ${repoUrl} --depth=1 --branch=${current_commit}`);
+  console.log("Repo cloned");
+};
+
 let env = {
   heroku_api_secret: getEnv("HEROKU_API_SECRET"),
   heroku_app_name: getEnv("HEROKU_APP_NAME"),
   heroku_email: getEnv("HEROKU_EMAIL"),
   app_environment: getEnv("APP_ENVIRONMENT"),
   reset_netrc: getEnv("RESET_NETRC") === "true",
+  repo_name: getEnv("GITHUB_REPOSITORY"),
+  current_commit: getEnv("GITHUB_SHA"),
 };
 
 (async () => {
@@ -61,16 +69,15 @@ let env = {
   execSync("heroku container:login");
   console.log("Successfully logged into heroku");
 
+  cloneRepo(env.repo_name, env.current_commit);
   addRemote(env.heroku_app_name);
+
   execSync(
     `heroku config:set --app=${env.heroku_app_name} APP_ENVIRONMENT=${env.app_environment}`
   );
 
   try {
-    execSync("git fetch --all --unshallow");
-    console.log("Full history fetched");
-
-    execSync("git push --force heroku main", {
+    execSync("git push --force heroku HEAD:main", {
       stdio: ["pipe", process.stdout, process.stderr],
     });
     process.exit(0);
