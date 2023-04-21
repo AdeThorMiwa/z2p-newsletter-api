@@ -27,3 +27,4 @@ RUN apt-get update -y \
 COPY --from=builder /app/target/release/zero2prod zero2prod
 COPY config config
 ENV APP_ENVIRONMENT $APP_ENVIRONMENT
+CMD ["./zero2prod"]

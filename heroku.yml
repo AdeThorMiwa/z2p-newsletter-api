@@ -6,6 +6,3 @@ setup:
 build:
   docker:
     web: Dockerfile
-
-run:
-  web: ls -a && ./target/release/zero2prod
