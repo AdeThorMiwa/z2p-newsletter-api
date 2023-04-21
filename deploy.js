@@ -72,6 +72,7 @@ let env = {
     console.log("Successfully deployed heroku app from branch main");
     process.exit(0);
   } catch (e) {
+    console.log("errored");
     console.error("Error while pushing: ", e);
     process.exit(1);
   }
