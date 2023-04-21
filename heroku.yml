@@ -8,4 +8,4 @@ build:
     web: Dockerfile
 
 run:
-  web: ./target/release/zero2prod
+  web: ls -a && ./target/release/zero2prod

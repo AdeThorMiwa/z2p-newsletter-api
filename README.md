@@ -1,4 +1,7 @@
-# Local Setup
+# Zero2prod Rust
+
+![GitHub issues](https://img.shields.io/github/issues/AdeThorMiwa/zero2prod.svg)
+[![Rust](https://github.com/AdeThorMiwa/zero2prod/actions/workflows/ci.yml/badge.svg)](https://github.com/AdeThorMiwa/zero2prod/actions/workflows/ci.yml)
 
 ## Install PSQL
 
