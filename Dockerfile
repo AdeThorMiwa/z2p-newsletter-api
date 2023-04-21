@@ -26,5 +26,5 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/zero2prod zero2prod
 COPY config config
-ENV APP_ENVIRONMENT production
-ENTRYPOINT ["./zero2prod"]
+ENV APP_ENVIRONMENT $APP_ENVIRONMENT
+CMD ["./target/release/zero2prod"]

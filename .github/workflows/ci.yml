@@ -8,11 +8,11 @@ on:
   # this specific branch (a.k.a. book chapter).
   push:
     branches:
-      - root-chapter-03-part1
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - root-chapter-03-part1
+      - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -164,4 +164,19 @@ jobs:
 
   # `deploy`
   deploy:
-    
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.13 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: zero2prod #Must be unique in Heroku
+          heroku_email: bendamyth@gmail.com
+          healthcheck: https://zero2prod.herokuapp.com/health_check
+          delay: 30
+          rollbackonhealthcheckfailed: false
+          usedocker: true
+          docker_build_args: |
+            APP_ENVIRONMENT
+        env:
+          APP_ENVIRONMENT: production
