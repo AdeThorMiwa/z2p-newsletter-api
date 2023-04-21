@@ -81,6 +81,7 @@ let env = {
     execSync("git push heroku main");
     setOutput("status", "Successfully deployed heroku app from branch main");
   } catch (e) {
+    console.error("Error while pushing: ", e);
     setFailed(err.toString());
   }
 })();
