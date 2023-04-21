@@ -1,15 +1,4 @@
 const { execSync } = require("child_process");
-const os = require("os");
-
-const setOutput = (name, value) => {
-  process.stdout.write(os.EOL);
-};
-
-const setFailed = (message) => {
-  process.exitCode = ExitCode.Failure;
-
-  process.stdout.write(os.EOL);
-};
 
 const createCatFile = (email, api_key, reset = true) => {
   if (reset) {
@@ -79,9 +68,10 @@ let env = {
 
   try {
     execSync("git push heroku main");
-    setOutput("status", "Successfully deployed heroku app from branch main");
+    console.log("Successfully deployed heroku app from branch main");
+    process.exit(0);
   } catch (e) {
     console.error("Error while pushing: ", e);
-    setFailed(err.toString());
+    process.exit(1);
   }
 })();
