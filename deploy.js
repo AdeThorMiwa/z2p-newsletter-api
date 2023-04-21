@@ -67,6 +67,7 @@ let env = {
   );
 
   try {
+    console.log("Push to heroku");
     execSync("git push heroku main");
     console.log("Successfully deployed heroku app from branch main");
     process.exit(0);
