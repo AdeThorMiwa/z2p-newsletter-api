@@ -8,7 +8,7 @@ const setOutput = (name, value) => {
 const setFailed = (message) => {
   process.exitCode = ExitCode.Failure;
 
-  process.stdout.write(message + os.EOL);
+  process.stdout.write(message?.toString() + os.EOL);
 };
 
 const createCatFile = (email, api_key) => `cat >~/.netrc <<EOF
