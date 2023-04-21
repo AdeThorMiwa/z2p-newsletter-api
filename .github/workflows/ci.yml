@@ -167,17 +167,26 @@ jobs:
     # needs: [test, fmt, clippy, coverage]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: akhileshns/heroku-deploy@v3.12.13 # This is the action
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Heroku CLI
+        uses: heroku/actions-cli@v7
+
+      - name: Login to Heroku with API key
+        uses: heroku/actions-cli@v7
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: zero2prod #Must be unique in Heroku
-          heroku_email: bendamyth@gmail.com
-          healthcheck: https://zero2prod.herokuapp.com/health_check
-          delay: 30
-          rollbackonhealthcheckfailed: false
-          usedocker: true
-          docker_build_args: |
-            APP_ENVIRONMENT
+          args: auth:token ${{ env.HEROKU_API_KEY }}
         env:
-          APP_ENVIRONMENT: production
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "bendamyth@gmail.com"
+          git config --global user.name "AdeThorMiwa"
+
+      - name: Deploy to Heroku
+        uses: heroku/actions-cli@v7
+        with:
+          args: git:remote -a zero2prod
+      - run: git push heroku main
