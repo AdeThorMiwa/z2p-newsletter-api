@@ -65,7 +65,7 @@ let env = {
 
   addRemote(env.heroku_app_name);
   execSync(
-    `heroku config:set --app=${app_name} APP_ENVIRONMENT=${env.app_environment}`
+    `heroku config:set --app=${env.heroku_app_name} APP_ENVIRONMENT=${env.app_environment}`
   );
 
   try {
