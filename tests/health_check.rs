@@ -31,7 +31,7 @@ pub struct AppBootstrap {
 impl AppBootstrap {
     async fn configure_db(config: &DatabaseSettings) -> PgPool {
         // create db
-        let mut conn = PgConnection::connect(config.connection_string_without_db().expose_secret())
+        let mut conn = PgConnection::connect_with(&config.without_db())
             .await
             .expect("Failed to connect to Postgres");
 
@@ -39,7 +39,7 @@ impl AppBootstrap {
             .await
             .expect("Failed to create db");
 
-        let conn_pool = PgPool::connect(config.connection_string().expose_secret())
+        let conn_pool = PgPool::connect_with(config.with_db())
             .await
             .expect("Failed to connect to Postgres.");
 
