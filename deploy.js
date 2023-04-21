@@ -11,7 +11,12 @@ const setFailed = (message) => {
   process.stdout.write(os.EOL);
 };
 
-const createCatFile = (email, api_key) => `cat >~/.netrc <<EOF
+const createCatFile = (email, api_key, reset = true) => {
+  if (reset) {
+    execSync("rm -rf ~/.netrc");
+  }
+
+  return `cat >~/.netrc <<EOF
 machine api.heroku.com
     login ${email}
     password ${api_key}
@@ -19,6 +24,7 @@ machine git.heroku.com
     login ${email}
     password ${api_key}
 EOF`;
+};
 
 const getEnv = (name, options) => {
   const val = process.env[`${name.replace(/ /g, "_").toUpperCase()}`] || "";
@@ -43,6 +49,7 @@ let env = {
   heroku_app_name: getEnv("HEROKU_APP_NAME"),
   heroku_email: getEnv("HEROKU_EMAIL"),
   app_environment: getEnv("APP_ENVIRONMENT"),
+  reset_netrc: getEnv("RESET_NETRC") === "true",
 };
 
 (async () => {
@@ -56,7 +63,9 @@ let env = {
   }
 
   console.log(env);
-  execSync(createCatFile(env.heroku_email, env.heroku_api_secret));
+  execSync(
+    createCatFile(env.heroku_email, env.heroku_api_secret, env.reset_netrc)
+  );
   console.log("Created and wrote to ~/.netrc");
 
   // login
