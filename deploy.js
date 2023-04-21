@@ -34,9 +34,10 @@ const addRemote = (app_name) => {
 };
 
 const cloneRepo = (repo_name, current_commit) => {
-  const repoUrl = `https://github.com/${repo_name}.git`;
-  execSync(`git clone ${repoUrl} --depth=1 --branch=${current_commit}`);
-  console.log("Repo cloned");
+  execSync("ls -a");
+  //   const repoUrl = `https://github.com/${repo_name}.git`;
+  //   execSync(`git clone ${repoUrl} --depth=1 --branch=${current_commit}`);
+  //   console.log("Repo cloned");
 };
 
 let env = {
