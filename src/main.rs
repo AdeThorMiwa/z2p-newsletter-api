@@ -2,6 +2,7 @@ use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use zero2prod::{
     configuration::get_config,
+    services::email::EmailService,
     startup::run,
     telemetry::{get_subscriber, init_subscriber},
 };
@@ -21,5 +22,12 @@ async fn main() -> Result<(), std::io::Error> {
     let port = std::env::var("PORT").unwrap_or(format!("{}", config.application.port));
     let url = format!("{}:{}", config.application.host, port);
     let listener = TcpListener::bind(url)?;
-    run(listener, pool)?.await
+
+    let email_sender = config
+        .email
+        .sender()
+        .expect("Invalid sender email address.");
+    let email_service = EmailService::new(config.email.base_url, email_sender);
+
+    run(listener, pool, email_service)?.await
 }

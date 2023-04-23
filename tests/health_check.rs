@@ -4,6 +4,7 @@ use std::net::TcpListener;
 use uuid::Uuid;
 use zero2prod::{
     configuration::{get_config, DatabaseSettings},
+    services::email::EmailService,
     startup::run,
     telemetry::{get_subscriber, init_subscriber},
 };
@@ -60,7 +61,13 @@ impl AppBootstrap {
         config.database.database_name = Uuid::new_v4().to_string();
         let db_pool = Self::configure_db(&config.database).await;
 
-        let server = run(listener, db_pool.clone()).expect("Failed to bind address");
+        let email_sender = config
+            .email
+            .sender()
+            .expect("Invalid sender email address.");
+        let email_service = EmailService::new(config.email.base_url, email_sender);
+
+        let server = run(listener, db_pool.clone(), email_service).expect("Failed to bind address");
 
         let _ = tokio::spawn(server);
 
