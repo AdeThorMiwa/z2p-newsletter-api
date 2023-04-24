@@ -65,8 +65,13 @@ impl AppBootstrap {
             .email
             .sender()
             .expect("Invalid sender email address.");
-        let email_service =
-            EmailService::new(config.email.base_url, email_sender, config.email.auth_token);
+        let timeout = config.email.timeout();
+        let email_service = EmailService::new(
+            config.email.base_url,
+            email_sender,
+            config.email.auth_token,
+            timeout,
+        );
 
         let server = run(listener, db_pool.clone(), email_service).expect("Failed to bind address");
 

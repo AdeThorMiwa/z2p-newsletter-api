@@ -30,11 +30,16 @@ pub struct EmailSettings {
     pub base_url: String,
     pub sender_email: String,
     pub auth_token: Secret<String>,
+    pub timeout_in_milli: u64,
 }
 
 impl EmailSettings {
     pub fn sender(&self) -> Result<SubscriberEmail, String> {
         SubscriberEmail::parse(self.sender_email.to_string())
+    }
+
+    pub fn timeout(&self) -> std::time::Duration {
+        std::time::Duration::from_millis(self.timeout_in_milli)
     }
 }
 
