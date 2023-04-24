@@ -10,3 +10,4 @@ database:
 email:
   base_url: "https://api.postmarkapp.com"
   sender_email: # sender email
+  auth_token: "secret-token"

@@ -29,6 +29,7 @@ pub struct DatabaseSettings {
 pub struct EmailSettings {
     pub base_url: String,
     pub sender_email: String,
+    pub auth_token: Secret<String>,
 }
 
 impl EmailSettings {
