@@ -1,11 +1,9 @@
 use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use std::net::TcpListener;
 use uuid::Uuid;
 use zero2prod::{
     configuration::{get_config, DatabaseSettings},
-    services::email::EmailService,
-    startup::run,
+    startup::{get_pool, Application},
     telemetry::{get_subscriber, init_subscriber},
 };
 
@@ -53,30 +51,28 @@ impl AppBootstrap {
     pub async fn new() -> Self {
         Lazy::force(&TRACING);
 
-        let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
-        let port = listener.local_addr().unwrap().port();
-        let address = format!("http://127.0.0.1:{}", port);
+        let config = {
+            let mut c = get_config().expect("Failed to read config");
 
-        let mut config = get_config().expect("Failed to read config");
-        config.database.database_name = Uuid::new_v4().to_string();
-        let db_pool = Self::configure_db(&config.database).await;
+            c.database.database_name = Uuid::new_v4().to_string();
+            c.application.port = 0;
+            c
+        };
 
-        let email_sender = config
-            .email
-            .sender()
-            .expect("Invalid sender email address.");
-        let timeout = config.email.timeout();
-        let email_service = EmailService::new(
-            config.email.base_url,
-            email_sender,
-            config.email.auth_token,
-            timeout,
-        );
+        // create and migrate database
+        Self::configure_db(&config.database).await;
 
-        let server = run(listener, db_pool.clone(), email_service).expect("Failed to bind address");
+        let application = Application::build(config.clone())
+            .await
+            .expect("Failed to build application");
 
-        let _ = tokio::spawn(server);
+        // get port before spawing app
+        let address = format!("http://127.0.0.1:{}", application.port());
+        let _ = tokio::spawn(application.run_until_stopped());
 
-        AppBootstrap { address, db_pool }
+        AppBootstrap {
+            address,
+            db_pool: get_pool(&config.database),
+        }
     }
 }

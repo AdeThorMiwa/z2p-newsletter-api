@@ -1,9 +1,6 @@
-use sqlx::postgres::PgPoolOptions;
-use std::net::TcpListener;
 use zero2prod::{
     configuration::get_config,
-    services::email::EmailService,
-    startup::run,
+    startup::Application,
     telemetry::{get_subscriber, init_subscriber},
 };
 
@@ -15,25 +12,7 @@ async fn main() -> Result<(), std::io::Error> {
 
     // Panic if we cant read config
     let config = get_config().expect("Failed to read configuration.");
-    let pool = PgPoolOptions::new()
-        .acquire_timeout(std::time::Duration::from_secs(2))
-        .connect_lazy_with(config.database.with_db());
-
-    let port = std::env::var("PORT").unwrap_or(format!("{}", config.application.port));
-    let url = format!("{}:{}", config.application.host, port);
-    let listener = TcpListener::bind(url)?;
-
-    let email_sender = config
-        .email
-        .sender()
-        .expect("Invalid sender email address.");
-    let timeout = config.email.timeout();
-    let email_service = EmailService::new(
-        config.email.base_url,
-        email_sender,
-        config.email.auth_token,
-        timeout,
-    );
-
-    run(listener, pool, email_service)?.await
+    let application = Application::build(config).await?;
+    application.run_until_stopped().await?;
+    Ok(())
 }
