@@ -33,13 +33,7 @@ pub async fn subscribe(
         return HttpResponse::InternalServerError().finish();
     }
 
-    if email_service
-        .send_email(
-            new_subscriber.email,
-            "Welcome!",
-            "Some content",
-            "Some content",
-        )
+    if send_confirmation_email(email_service, new_subscriber)
         .await
         .is_err()
     {
@@ -60,7 +54,7 @@ pub async fn insert_subscriber(
     sqlx::query!(
         r#"
     INSERT INTO subscriptions (id, email, name, subscribed_at, status)
-    VALUES ($1, $2, $3, $4, 'confirmed')
+    VALUES ($1, $2, $3, $4, 'pending_confirmation')
     "#,
         Uuid::new_v4(),
         new_subscriber.email.as_ref(),
@@ -75,4 +69,28 @@ pub async fn insert_subscriber(
     })?;
 
     Ok(())
+}
+
+#[tracing::instrument(
+    name = "Send a confirmation email to the new subscriber",
+    skip(new_subscriber, email_service)
+)]
+pub async fn send_confirmation_email(
+    email_service: web::Data<EmailService>,
+    new_subscriber: NewSubscriber,
+) -> Result<(), reqwest::Error> {
+    let confirmation_link = "https://there-is-no-such-domain.com/subscriptions/confirm";
+    let html_body = format!(
+        "Welcome to our newsletter!<br />\
+        Click <a href=\"{}\">here</a> to confirm your subscription.",
+        confirmation_link
+    );
+    let plain_body = format!(
+        "Welcome to our newsletter!\nVisit {} to confirm your subscription.",
+        confirmation_link
+    );
+
+    email_service
+        .send_email(new_subscriber.email, "Welcome!", &html_body, &plain_body)
+        .await
 }
