@@ -13,6 +13,9 @@ pub struct Application {
     server: Server,
 }
 
+#[derive(Clone)]
+pub struct ApplicationBaseUrl(pub String);
+
 impl Application {
     pub async fn build(config: Settings) -> Result<Self, std::io::Error> {
         let pool = get_pool(&config.database);
@@ -34,7 +37,7 @@ impl Application {
         );
 
         let port = listener.local_addr().unwrap().port();
-        let server = run(listener, pool, email_service)?;
+        let server = run(listener, pool, email_service, config.application.base_url)?;
 
         Ok(Self { server, port })
     }
@@ -52,9 +55,11 @@ pub fn run(
     listener: TcpListener,
     db_pool: PgPool,
     email_service: EmailService,
+    base_url: String,
 ) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let email_service = web::Data::new(email_service);
+    let base_url = ApplicationBaseUrl(base_url);
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
@@ -63,6 +68,7 @@ pub fn run(
             .route("/subscriptions/confirm", web::get().to(confirm))
             .app_data(db_pool.clone())
             .app_data(email_service.clone())
+            .app_data(base_url.clone())
     })
     .listen(listener)?
     .run();
