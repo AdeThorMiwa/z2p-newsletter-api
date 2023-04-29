@@ -59,7 +59,7 @@ pub fn run(
 ) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let email_service = web::Data::new(email_service);
-    let base_url = ApplicationBaseUrl(base_url);
+    let base_url = web::Data::new(ApplicationBaseUrl(base_url));
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())

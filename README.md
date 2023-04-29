@@ -45,3 +45,5 @@ SKIP_DOCKER=true ./scripts/init_db.sh
 ```bash
 psql "postgresql://postgres:password@localhost/newsletter" -c "SELECT * FROM _sqlx_migrations"
 ```
+
+TODO: add precommit hook to run test
