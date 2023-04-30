@@ -31,6 +31,8 @@ serde-aux = "4"
 unicode-segmentation = "1"
 validator = "0.16"
 rand = { version = "0.8", features=["std_rng"] }
+anyhow = "1.0.40"
+thiserror = "1.0.24"
 
 
 [dev-dependencies]
