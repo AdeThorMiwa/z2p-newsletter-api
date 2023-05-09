@@ -82,10 +82,13 @@ impl AppBootstrap {
         let address = format!("http://127.0.0.1:{}", port);
         let _ = tokio::spawn(application.run_until_stopped());
 
+        let db_pool = get_pool(&config.database);
+        AppBootstrap::add_test_user(&db_pool).await;
+
         AppBootstrap {
             address,
             port,
-            db_pool: get_pool(&config.database),
+            db_pool,
             email_server,
         }
     }
@@ -124,11 +127,33 @@ impl AppBootstrap {
     }
 
     pub async fn post_newsletter(&self, body: serde_json::Value) -> reqwest::Response {
+        let (username, password) = self.test_user().await;
         reqwest::Client::new()
             .post(&format!("{}/newsletters", &self.address))
+            .basic_auth(username, Some(password))
             .json(&body)
             .send()
             .await
             .expect("Failed to post newsletter")
+    }
+
+    async fn add_test_user(pool: &PgPool) {
+        sqlx::query!(
+            "INSERT INTO users (user_id, username, password) VALUES ($1, $2, $3)",
+            Uuid::new_v4(),
+            Uuid::new_v4().to_string(),
+            Uuid::new_v4().to_string(),
+        )
+        .execute(pool)
+        .await
+        .expect("Failed to create test users.");
+    }
+
+    pub async fn test_user(&self) -> (String, String) {
+        let row = sqlx::query!("SELECT username, password FROM users LIMIT 1",)
+            .fetch_one(&self.db_pool)
+            .await
+            .expect("Failed to create test users.");
+        (row.username, row.password)
     }
 }
