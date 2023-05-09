@@ -50,6 +50,7 @@ pub struct Settings {
     pub application: ApplicationSettings,
     pub database: DatabaseSettings,
     pub email: EmailSettings,
+    pub redis_uri: Secret<String>,
 }
 
 impl DatabaseSettings {

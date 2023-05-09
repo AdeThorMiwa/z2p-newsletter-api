@@ -14,3 +14,4 @@ email:
   sender_email: adethormiwa@outlook.com
   auth_token: "secret-token"
   timeout_in_milli: 10000
+redis_uri: "redis://127.0.0.1:6379"
