@@ -2,7 +2,7 @@ application:
   host: 127.0.0.1
   port: 8000
   base_url: "http://127.0.0.1" # TODO: find a way to set this in the heroku.yaml
-  hmac_secret: "longest-secret-ever"
+  hmac_secret: "longest-secret-ever-that-seem-not-to-be-long-enough-for-actix-web-key"
 database:
   host: "127.0.0.1"
   port: 5432

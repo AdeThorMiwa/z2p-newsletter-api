@@ -28,6 +28,7 @@ pub struct AppBootstrap {
     pub db_pool: PgPool,
     pub email_server: MockServer,
     pub test_user: TestUser,
+    pub api_client: reqwest::Client,
 }
 
 pub struct ConfirmationLinks {
@@ -90,12 +91,19 @@ impl AppBootstrap {
         let address = format!("http://127.0.0.1:{}", port);
         let _ = tokio::spawn(application.run_until_stopped());
 
+        let api_client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::none())
+            .cookie_store(true)
+            .build()
+            .unwrap();
+
         let app = AppBootstrap {
             address,
             port,
             db_pool: get_pool(&config.database),
             email_server,
             test_user: TestUser::new(),
+            api_client,
         };
 
         app.test_user.save(&app.db_pool).await;
@@ -104,7 +112,7 @@ impl AppBootstrap {
     }
 
     pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
-        reqwest::Client::new()
+        self.api_client
             .post(&format!("{}/subscriptions", &self.address))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(body)
@@ -137,13 +145,36 @@ impl AppBootstrap {
     }
 
     pub async fn post_newsletter(&self, body: serde_json::Value) -> reqwest::Response {
-        reqwest::Client::new()
+        self.api_client
             .post(&format!("{}/newsletters", &self.address))
             .basic_auth(&self.test_user.username, Some(&self.test_user.password))
             .json(&body)
             .send()
             .await
             .expect("Failed to post newsletter")
+    }
+
+    pub async fn post_login<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}/login", &self.address))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    pub async fn get_login_html(&self) -> String {
+        self.api_client
+            .get(&format!("{}/login", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+            .text()
+            .await
+            .unwrap()
     }
 }
 
@@ -179,4 +210,9 @@ impl TestUser {
         .await
         .expect("Failed to save test user.");
     }
+}
+
+pub fn assert_is_redirect_to(response: &reqwest::Response, location: &str) {
+    assert_eq!(response.status().as_u16(), 303);
+    assert_eq!(response.headers().get("Location").unwrap(), location);
 }
