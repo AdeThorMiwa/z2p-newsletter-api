@@ -4,5 +4,6 @@ pub mod domain;
 pub mod libs;
 pub mod routes;
 pub mod services;
+pub mod session_state;
 pub mod startup;
 pub mod telemetry;
