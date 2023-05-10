@@ -2,6 +2,18 @@
 set -x           # enables a mode of shell where all executed commands are printed to terminal
 set -eo pipefail # if set the return value of the pipeline is the value of the last (rightmost) command to exit with a non-zero status
 
+# if a redis container is running, print instructions to kill it and exit
+RUNNING_CONTAINER=$(docker ps --filter 'name=redis' --format '{{.ID}}')
+if [[ -n $RUNNING_CONTAINER ]]; then
+    echo >&2 "there is a redis container already running, kill it with"
+    echo >&2 " docker kill ${RUNNING_CONTAINER}"
+    exit 1
+fi
+
+# Launch Redis using Docker
+docker run -p "6379:6379" -d --name "redis_$(date '+%s')" redis:7
+echo >&2 "Redis is ready to go!"
+
 if ! [ -x "$(command -v psql)" ]; then
     echo >&2 "Error: psql is not installed."
     exit 1
